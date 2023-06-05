@@ -1,0 +1,15 @@
+---
+additional:
+- relationship
+
+files:
+- '!README.md'
+- '!.gitignore'
+- '!dependabot.yml'
+
+- '!.secrets.baseline'
+- '!.github/pull.yml'
+- '!.github/template-sync.yml'
+- '!.github/workflows/sync.yml'
+- '!.github/workflows/pre-commit-update.yml'
+- '!.github/settings.yml'
