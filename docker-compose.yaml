@@ -1,0 +1,65 @@
+---
+version: '3.6'
+services:
+  autoheal:
+    restart: always
+    image: willfarrell/autoheal
+    environment:
+    - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  postgres:
+    image: postgres:12
+    restart: always
+    volumes:
+    - ./backend/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+  hasura-migrations:
+    image: hasura/graphql-engine:v2.15.2.cli-migrations-v3
+    depends_on:
+    - postgres
+    volumes:
+    - ./backend/hasura/migrations:/hasura-migrations
+    - ./backend/hasura/metadata:/hasura-metadata
+    restart: on-failure
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:$POSTGRES_PASSWORD@postgres:5432/postgres
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:$POSTGRES_PASSWORD@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'false' # set to "false" to disable console
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: 'false'
+  hasura-cli:
+    build:
+      context: ./backend
+    restart: on-failure
+    depends_on:
+    - graphql-engine
+    #entrypoint: /bin/sh -c 'tail -f /dev/null'
+    entrypoint: hasura console --admin-secret $HASURA_GRAPHQL_ADMIN_SECRET --address 0.0.0.0 --no-browser
+    network_mode: host
+    volumes:
+    - ./backend/hasura:/src/hasura
+    working_dir: /src/hasura
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: $HASURA_GRAPHQL_ADMIN_SECRET
+      HASURA_GRAPHQL_JWT_SECRET: $HASURA_GRAPHQL_JWT_SECRET
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: 'false'
+  graphql-engine:
+    image: hasura/graphql-engine:v2.15.2
+    ports:
+    - 8080:8080
+    depends_on:
+    - postgres
+    restart: always
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:$POSTGRES_PASSWORD@postgres:5432/postgres
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:$POSTGRES_PASSWORD@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: 'false'
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: 'false'
+      HASURA_GRAPHQL_DEV_MODE: 'true'
+      HASURA_GRAPHQL_ADMIN_SECRET: $HASURA_GRAPHQL_ADMIN_SECRET
+      HASURA_GRAPHQL_JWT_SECRET: $HASURA_GRAPHQL_JWT_SECRET
+volumes:
+  db_data:
