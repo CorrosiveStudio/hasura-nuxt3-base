@@ -16,6 +16,22 @@ services:
     - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+    - 8100:8100
+    - 24678:24678
+    environment:
+      HASURA_GRAPHQL_ADMIN_SECRET: $HASURA_GRAPHQL_ADMIN_SECRET
+      AUTH0_CLIENT_ID: $AUTH0_CLIENT_ID
+      VAPID_PUBLIC_KEY: $VAPID_PUBLIC_KEY
+      VAPID_PRIVATE_KEY: $VAPID_PRIVATE_KEY
+    #user: 1000:1000
+    restart: on-failure
+    volumes:
+    - ./frontend:/src
+    #command: /bin/sh -c 'tail -f /dev/null'
   hasura-migrations:
     image: hasura/graphql-engine:v2.15.2.cli-migrations-v3
     depends_on:
