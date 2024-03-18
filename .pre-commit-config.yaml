@@ -2,7 +2,7 @@
 exclude: .*csv
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.5.0
   hooks:
   - id: trailing-whitespace
   - id: mixed-line-ending
@@ -16,22 +16,22 @@ repos:
   - id: requirements-txt-fixer
   - id: fix-encoding-pragma
 - repo: https://github.com/psf/black
-  rev: 23.3.0
+  rev: 24.3.0
   hooks:
   - id: black
 - repo: https://github.com/PyCQA/bandit
-  rev: 1.7.5
+  rev: 1.7.8
   hooks:
   - id: bandit
 - repo: https://github.com/Lucas-C/pre-commit-hooks
-  rev: v1.5.1
+  rev: v1.5.5
   hooks:
   - id: forbid-crlf
   - id: remove-crlf
   - id: forbid-tabs
   - id: remove-tabs
 - repo: https://github.com/IBM/detect-secrets
-  rev: 0.13.1+ibm.61.dss
+  rev: 0.13.1+ibm.62.dss
   hooks:
   - id: detect-secrets
     args: [--baseline, .secrets.baseline]
